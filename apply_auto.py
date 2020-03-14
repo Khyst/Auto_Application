@@ -33,15 +33,15 @@ test_index = 0
 
 """============================================== Chrome Webdriver 옵션 =============================================="""
 
-# options = webdriver.ChromeOptions()
+options = webdriver.ChromeOptions()
 
-# options.add_argument("window-size=1920x1080") # 화면크기(전체화면)
-# options.add_argument("disable-gpu")   # 가속 사용 x
-# options.add_argument("disable-infobars")
-# options.add_argument("--disable-extensions")
-# options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
+options.add_argument("window-size=1920x1080") # 화면크기(전체화면)
+options.add_argument("disable-gpu")   # 가속 사용 x
+options.add_argument("disable-infobars")
+options.add_argument("--disable-extensions")
+options.add_argument("lang=ko_KR")    # 가짜 플러그인 탑재
 
-# driver = webdriver.Chrome('C:/Users/kyh94/chrome_driver/chromedriver.exe', options=options)
+driver = webdriver.Chrome('C:/Users/kyh94/chrome_driver/chromedriver.exe', options=options)
 
 """===================================================================================================================== """
 
@@ -242,30 +242,30 @@ def analyzing_data_TABLE():
                step = 0
 
                """ -------------------------------------------- 크롤링한  Data 출력 --------------------------------------------"""
-               # print("시험장: ", end=" ")
-               # try:
-               #      print(name_of_test_route[0][0])
-               # except:
-               #      print("Error Detected")
+               print("시험장: ", end=" ")
+               try:
+                    print(name_of_test_route[0][0])
+               except:
+                    print("Error Detected")
 
-               # print("==========================================================================================")
-               # print("시간대>>", end="\t|\t")
-               # for info in info_table:
-               #      print(info, end="\t")
-               # print("\n==========================================================================================")
+               print("==========================================================================================")
+               print("시간대>>", end="\t|\t")
+               for info in info_table:
+                    print(info, end="\t")
+               print("\n==========================================================================================")
 
-               # step = 0
-               # for step_date in application_table:
-               #      print(date_table[step], end="\t|\t")
-               #      try:
-               #           for selected_date in step_date :
-               #                print(selected_date, end="\t")
+               step = 0
+               for step_date in application_table:
+                    print(date_table[step], end="\t|\t")
+                    try:
+                         for selected_date in step_date :
+                              print(selected_date, end="\t")
                          
-               #      except:
-               #           break
+                    except:
+                         break
 
-               #      step += 1
-               #      print()
+                    step += 1
+                    print()
                """ -------------------------------------------- 크롤링한  Data 출력 --------------------------------------------"""
                
                temp_info_table.append(info_table) # 각 시험장마다의 정보를 임시 테이블에 추가 -> 임시 테이블 리스트를 하나의 지역으로 묶기 위함
@@ -381,18 +381,18 @@ def main():
      global test_index
 
      """ 1. 환경 설정 """
-     # arrangement_ENVIRONMENT()
+     arrangement_ENVIRONMENT()
 
      """ 2, 3, 4. 데이터 추출 """
-     # while True:
-     #      checking_TESTPLACE()
-     #      test_per_statue_count.append(test_count)
-     #      statue_index = statue_index + 1
+     while True:
+          checking_TESTPLACE()
+          test_per_statue_count.append(test_count)
+          statue_index = statue_index + 1
           
-     #      #value = input('If you wanna to cancel program, type the "q" or "quit", plz??')
+          #value = input('If you wanna to cancel program, type the "q" or "quit", plz??')
           
-     #      if statue_index >= statue_count :
-     #           break
+          if statue_index >= statue_count :
+               break
      
      """ 5. 데이터 가공 """
 
