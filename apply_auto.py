@@ -17,7 +17,7 @@ name_of_statue_route = []
 name_of_test_route = list()
 
 statue_table_dictionery = {0: "S001", 1: "S002", 2: "S003", 3: "S004", 4: "S005", 5: "S006", 6: "S007", 7: "S008", 8: "S009", 9: "S010"} # (!)
-test_table_dictionery = {0: "T001", 1: "T002", 2: "T003", 3: "T004", 4: "T005", 5: "T006", 6: "T007", 7: "T008", 8: "T009", 9: "T010", 10: "T011", 11: "T012"} # (!)
+test_table_dictionery = {0: "T001", 1: "T002", 2: "T003", 3: "T004", 4: "T005", 5: "T006", 6: "T007", 7: "T008", 8: "T009", 9: "T010", 10: "T011", 11: "T012", 12: "T013", 13: "T014"} # (!)
 
 capable_apply_table = list()
 table_database = list()
@@ -35,6 +35,10 @@ test_index = 0
 
 options = webdriver.ChromeOptions()
 
+#options.add_argument('headless') # 화면을 띄우지 않고 사용, 속도 향상
+options.add_argument("no-sandbox")
+
+options.add_experimental_option("debuggerAddress", "127.0.0.1:9222")
 options.add_argument("window-size=1920x1080") # 화면크기(전체화면)
 options.add_argument("disable-gpu")   # 가속 사용 x
 options.add_argument("disable-infobars")
@@ -55,8 +59,8 @@ def arrangement_ENVIRONMENT():
      id_blank = driver.find_element_by_name('uid')
      pw_blank = driver.find_element_by_name('upwd')
 
-     USER_ID = "<input-your-user-id>" # 아이디 입력
-     USER_PASSWORD = "<input-your-user-pw>" # 비밀번호 입력
+     USER_ID = "<아이디 입력칸>" # 아이디 입력
+     USER_PASSWORD = "<비밀번호 입력칸>" # 비밀번호 입력
 
      id_blank.send_keys(USER_ID)
      pw_blank.send_keys(USER_PASSWORD)
@@ -80,8 +84,8 @@ def basic_AUTH():
      
 
      
-     user_code_pre = "<input-your-residance-number_1>" # 주민번호 앞자리 입력
-     user_code_rear = "<input-your-residance-number_2>" # 주민번호 뒷자리 입력
+     user_code_pre = "<주민번호 앞부분 입력칸>" # 주민번호 앞자리 입력
+     user_code_rear = "<주민번호 뒷부분 입력칸>" # 주민번호 뒷자리 입력
 
      time.sleep(1)
      driver.find_element_by_css_selector('#sc_custno1').send_keys(user_code_pre)
@@ -92,10 +96,9 @@ def basic_AUTH():
 
      driver.switch_to.alert.accept()
      
-     
      """
      # 전화번호 입력
-     user_phone_number = "<input-your-phone-number>" # 전화번호 입력
+     user_phone_number = "<전화번호 입력칸>" # 전화번호 입력
      part1_phone_number = user_phone_number[0:3]
      part2_phone_number = user_phone_number[3:7]
      part3_phone_number = user_phone_number[7:11]
@@ -141,31 +144,34 @@ def checking_TESTPLACE():
           print(list_statue)
           print('------------------------------------------------------------------------------------------------------------------')
           
+          print("statue_index: ", statue_index)
           print("test_index: ", test_index, end="  ")
           print("test_count: ", test_count)
           
-          if(test_index >= test_count):
+          if(test_index >= test_count-1):
                break
 
           test_table = driver.find_element_by_css_selector('#placeInfoTable > tbody:nth-child(3)')
           test_selector = 'tr:nth-child('+str(test_index+1)+')'
           test_picked_line = test_table.find_element_by_css_selector(test_selector)
-          print(test_picked_line)
+
+          # print(test_picked_line)
+
           test_picked_line.find_element_by_css_selector('td:nth-child(1) > input').click()
 
-          print("선택 된 시험장: ", end="")
-
-          temp_name_of_test_route.append(str(test_picked_line.find_element_by_css_selector('td:nth-child(2)').text))   
-          print(test_picked_line.find_element_by_css_selector('td:nth-child(2)').text)
-
+          temp_name_of_test_route.insert(test_index, str(test_picked_line.find_element_by_css_selector('td:nth-child(2)').text))   
+          # print("선택 된 시험장: ", end="")
+          # print(test_picked_line.find_element_by_css_selector('td:nth-child(2)').text)
+          # print(temp_name_of_test_route[test_index])
+          
           driver.find_element_by_css_selector('#myForm > p.btn_center_01 > span:nth-child(2)').click()
 
-          save_table_PARSE()
+          save_table_PARSE(temp_name_of_test_route[test_index])
 
           test_index += 1
 
-     name_of_test_route.append(temp_name_of_test_route)
-     temporary_record_for_ERROR(test_picked_line.find_element_by_css_selector('td:nth-child(2)').text, name_of_test_route) # Error 체킹 
+     name_of_test_route.insert(statue_index, temp_name_of_test_route)
+     #temporary_record_for_ERROR(test_picked_line.find_element_by_css_selector('td:nth-child(2)').text, name_of_test_route) # Error 체킹 
 
 def temporary_record_for_ERROR(*args):
      temp_File = open("TEMP_NAME_TEST_PLACE.txt", "w+")
@@ -180,16 +186,23 @@ def temporary_record_for_ERROR(*args):
 
      temp_File.close()
 
-def save_table_PARSE():
+def save_table_PARSE(save_title):
      
      """ BeautifulSoup 활용 HTML Table 분석 """
-     save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/table_parsed.html"
+     print(save_title, "로 저장\n")
+     save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + save_title + ".html"
+
+     file = open("./test_place_name", "a+")
+     file.write(save_title + "\n")
+     file.close()
+
      save_parse_file = open(save_url, "w+")
      time.sleep(3)
      soup = BeautifulSoup(driver.page_source, 'html.parser')
      save_table = soup.find_all('table')
      save_parse_file.write(str(save_table))
      time.sleep(1)
+     save_parse_file.close()
 
 def analyzing_data_TABLE():
      global statue_index
@@ -206,7 +219,7 @@ def analyzing_data_TABLE():
                application_table = list()
                
 
-               resource_route = "./" + statue_table_dictionery[statue_index] + "/" + test_table_dictionery[test_index] + "/" + "table_parsed.html"
+               resource_route = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + name_of_test_route[statue_index][test_index] + ".html"
                file = open(resource_route)
                soup_file = BeautifulSoup(file, 'html.parser')
 
@@ -244,7 +257,7 @@ def analyzing_data_TABLE():
                """ -------------------------------------------- 크롤링한  Data 출력 --------------------------------------------"""
                print("시험장: ", end=" ")
                try:
-                    print(name_of_test_route[0][0])
+                    print(name_of_test_route[statue_index][test_index])
                except:
                     print("Error Detected")
 
@@ -268,20 +281,17 @@ def analyzing_data_TABLE():
                     print()
                """ -------------------------------------------- 크롤링한  Data 출력 --------------------------------------------"""
                
-               temp_info_table.append(info_table) # 각 시험장마다의 정보를 임시 테이블에 추가 -> 임시 테이블 리스트를 하나의 지역으로 묶기 위함
-               temp_date_table.append(date_table) # 각 시험장마다의 정보를 임시 테이블에 추가 -> 임시 테이블 리스트를 하나의 지역으로 묶기 위함
-               temp_place_database.append(application_table) # 각 시험장마다의 정보를 임시 테이블에 추가 -> 임시 테이블 리스트를 하나의 지역으로 묶기 위함
+               temp_info_table.insert(test_index, info_table) # 각 시험장마다의 정보를 임시 테이블에 추가 -> 임시 테이블 리스트를 하나의 지역으로 묶기 위함
+               temp_date_table.insert(test_index, date_table) # 각 시험장마다의 정보를 임시 테이블에 추가 -> 임시 테이블 리스트를 하나의 지역으로 묶기 위함
+               temp_place_database.insert(test_index, application_table) # 각 시험장마다의 정보를 임시 테이블에 추가 -> 임시 테이블 리스트를 하나의 지역으로 묶기 위함
 
                test_index += 1
-               #print(statue_index, "S/ ", test_index, "T/ \n")
 
           except:
                if statue_index <= 9:
-                    date_table_database.append(temp_date_table) # 각 지역 마다의 정보 리스트 추가
-                    info_table_database.append(temp_info_table) # 각 지역 마다의 정보 리스트 추가
-                    table_database.append(temp_place_database) # 각 지역 마다의 정보 리스트 추가
-
-                    # input()
+                    date_table_database.insert(statue_index, temp_date_table) # 각 지역 마다의 정보 리스트 추가
+                    info_table_database.insert(statue_index, temp_info_table) # 각 지역 마다의 정보 리스트 추가
+                    table_database.insert(statue_index, temp_place_database) # 각 지역 마다의 정보 리스트 추가
 
                     # save_contetns_by_CSV_temp() # 각 지역 마다의 정보 리스트 저장
                     # save_date_by_CSV_temp() # 각 지역 마다의 정보 리스트 저장
@@ -295,43 +305,31 @@ def analyzing_data_TABLE():
                     statue_index += 1
                else :
                     break
-
-          
+    
 def save_date_by_CSV_temp():
      try:
         pd_data_2 = pandas.DataFrame(date_table_database)
-        save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/pandas_date_table.csv"
+        save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + name_of_test_route[statue_index][test_index] + ".csv"
         pd_data_2.to_csv(save_url)
 
      except:
-        print("11")
         pass
 
 def save_info_time_by_CSV_temp():
      try:
         pd_data_3 = pandas.DataFrame(info_table_database)
-        save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/pandas_info_table.csv"
+        save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + name_of_test_route[statue_index][test_index] + ".csv"
         pd_data_3.to_csv(save_url)
 
      except:
-        print("11")
         pass
 
 def save_contetns_by_CSV_temp():
     pd_data = pandas.DataFrame(table_database[statue_index][test_index])
     pd_data.columns = info_table_database[statue_index][test_index]
     pd_data.rename(index=date_table_database[statue_index][test_index])
-    save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/pandas_table.csv"
+    save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + name_of_test_route[statue_index][test_index] + ".csv"
     pd_data.to_csv(save_url)
-    """try:
-        pd_data = pandas.DataFrame(table_database[statue_index][test_index])
-        pd_data.columns = info_table_database[statue_index][test_index]
-        pd_data.rename(index=date_table_database[statue_index][test_index])
-        save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/pandas_table.csv"
-        pd_data.to_csv(save_url)
-    except:
-        print("11")
-        pass"""
      
 def save_contents_by_CSV():
      global statue_index
@@ -350,23 +348,17 @@ def save_contents_by_CSV():
                     pd_data.columns = info_table_database[statue_index][test_index]
                     
                if len(date_table_database[statue_index][test_index]) is len(pd_data):
-                    temp_dic = {}
-                    for x in range(0, len(pd_data), 1):
-                         temp_dic[x] = date_table_database[statue_index][test_index][x]
-
-                    pd_data.rename(index=temp_dic)
-                    pd_data['<-'] = ""
-                    pd_data['일자'] = date_table_database[statue_index][test_index]
+                    pd_data.insert(0, '일자', date_table_database[statue_index][test_index])
                     
                     temp_index = list()
                     temp_index.append("일자")
+
                     for times in info_table_database[statue_index][test_index]:
                          temp_index.append(times)
-               
 
                     pd_data.reindex(index=temp_index)
 
-               save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/pandas_table.csv"
+               save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + name_of_test_route[statue_index][test_index] + ".csv"
                pd_data.to_csv(save_url, encoding="cp949")
                test_index += 1
 
@@ -389,17 +381,17 @@ def main():
           test_per_statue_count.append(test_count)
           statue_index = statue_index + 1
           
-          #value = input('If you wanna to cancel program, type the "q" or "quit", plz??')
-          
           if statue_index >= statue_count :
                break
      
      """ 5. 데이터 가공 """
-
      statue_index = 0
      test_index = 0
 
      analyzing_data_TABLE()
+
+     temp_pandas_test_place_table = pandas.DataFrame(name_of_test_route)
+     temp_pandas_test_place_table.to_csv("./place_pandas.csv", encoding="cp949")
 
      temp_pandas_table = pandas.DataFrame(table_database)
      temp_pandas_table.to_csv("./pandas.csv", encoding="cp949")
@@ -410,19 +402,15 @@ def main():
      temp_pandas_table = pandas.DataFrame(info_table_database)
      temp_pandas_table.to_csv("./info_pandas.csv", encoding="cp949")
 
-     # print(pandas.DataFrame(table_database))
-     # print(pandas.DataFrame(date_table_database))
-     # print(pandas.DataFrame(info_table_database))
-
-
      save_contents_by_CSV()
 
-     """
-     6. 수집된 데이터를 이용해서, 필요로 하는 기능에 따라 사용자에게 알림보내기
+     
+     """ 6. 수집된 데이터를 이용해서, 필요로 하는 기능에 따라 사용자에게 알림보내기 """
+
      #1. 구글 Crhome Alert
      #2. KAKAO TALK BOT
      #3. TWITTER BOT
-     """
+     
      transfer_alert_message_to_USER()
 
 main()
