@@ -28,7 +28,6 @@ statue_index = 0 # 시험장 검사할 인덱스 ( 지역 인덱스 )
 test_index = 0 # 시험장 검사할 인덱스 ( 시험장 인덱스 )
 
 """============================================== Chrome Webdriver 옵션 =============================================="""
-#os.system('chrome_run.bat')
 
 options = webdriver.ChromeOptions()
 
@@ -46,7 +45,6 @@ driver = webdriver.Chrome('C:/Users/kyh94/chrome_driver/chromedriver.exe', optio
 
 """===================================================================================================================== """
 
-""" 1. 웹에서 html > table 소스 크롤링 """
 def arrangement_ENVIRONMENT():
      URL = "http://license.korcham.net/"
      driver.get(URL)
@@ -93,56 +91,11 @@ def basic_AUTH():
      time.sleep(1)
 
      driver.switch_to.alert.accept()
-     
-     """
-     # 전화번호 입력
-     user_phone_number = "<전화번호 입력칸 (- 제외)>" # 전화번호 입력
-     part1_phone_number = user_phone_number[0:3]
-     part2_phone_number = user_phone_number[3:7]
-     part3_phone_number = user_phone_number[7:11]
-
-     # 전화번호 파싱후 입력
-     #time.sleep(1)
-     #driver.find_element_by_xpath("//*[@value='" + part1_phone_number + "']/table/tbody/tr[5]/td/select")
-     time.sleep(1)
-     driver.find_element_by_name("sc_htelno2").send_keys(part2_phone_number)
-     time.sleep(1)
-     driver.find_element_by_name("sc_htelno3").send_keys(part3_phone_number)
-     """
 
      driver.find_element_by_css_selector('#myForm > p.btn_center_01 > span').click()
 
-def option_1(): # check_TESTPLACE 포함
-     selection = input('mode: ')
-     global statue_index
-
-     if selection == "1":
-          print("selection 1 is seleccted")
-          while True:
-               checking_TESTPLACE()
-               statue_index = statue_index + 1
-               
-               if statue_index >= statue_count :
-                    break
-     
-     elif selection == "2": # 특정 시험장 크롤링 (OPTION)
-          print("selection 2 is seleccted")
-          checking_particular_TESTPLACE()
-
-     else: # 크롤링 하지 않고 빠져나감
-          pass
-
-
 def save_place_name(save_title):
      pass
-     """file = open("./test_place_name", "w+")
-
-     if save_title == "\n":
-          file.write("\n")
-     else :
-          file.write(statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + ":" + save_title + "\n")
-
-     file.close()"""
 
 def checking_TESTPLACE(): # 모든 시험장 크롤링 (OPTION)
      global test_index
@@ -205,6 +158,8 @@ def checking_particular_TESTPLACE(): # 특정 시험장 크롤링 (OPTION)
      statue_index = int(input("지역 번호 : "))
      test_index = int(input("시험장 번호: "))
 
+     print(statue_index, "/", test_index, ": 를 크롤링 합니다")
+
      basic_AUTH()
 
      time.sleep(1)
@@ -258,7 +213,7 @@ def temporary_record_for_ERROR(*args):
 def save_table_PARSE(save_title, particular):
      
      """ BeautifulSoup 활용 HTML Table 분석 """
-     print(save_title, "를 저장\n")
+     print(save_title, "를 html파일로 저장\n\n")
      save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + "result_code" + ".html"
 
      if not particular : 
@@ -271,16 +226,6 @@ def save_table_PARSE(save_title, particular):
      save_parse_file.write(str(save_table))
      time.sleep(1)
      save_parse_file.close()
-
-""" 2. 크롤링한 데이터 분석 및 커스터 마이징 """
-def option_2(): # save_to_CSV 포함
-     selection = input('mode: ')
-     if selection == "1":
-          save_contents_by_CSV()
-     elif selection == "2":
-          save_contents_by_particular_CSV()
-     else:
-          pass
 
 def analyzing_data_TABLE(): # 모든 테이블에 대해서 Analyzing 작업 수행
      global statue_index
@@ -405,7 +350,7 @@ def save_contents_by_particular_CSV(): # 특정 콘텐츠를 CSV 파일로 변�
           pd_data.reindex(index=temp_index)
 
      save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + "result_table" + ".csv"
-
+     print(test_place_name_database[statue_saving_route[statue_index]][test_saving_route[test_index]].rstrip("\n"), "를 csv 파일로 저장")
      pd_data.to_csv(save_url, encoding="cp949")
 
 def save_contents_by_CSV(): # 모든 콘텐츠를 CSV 파일로 변환
@@ -448,6 +393,10 @@ def save_contents_by_CSV(): # 모든 콘텐츠를 CSV 파일로 변환
                     pd_data.reindex(index=temp_index)
 
                save_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + "result_table" + ".csv"
+               try:
+                    print(test_place_name_database[statue_saving_route[statue_index]][test_saving_route[test_index]].rstrip("\n"))
+               except:
+                    print("Error Detected")
                pd_data.to_csv(save_url, encoding="cp949")
                test_index += 1
 
@@ -478,32 +427,21 @@ def test_place_name_database_READ():
 
      print(test_place_name_database)
 
-def option_3(): # analyzing_data_TABLE_2() 포함
-     selection = input('mode: ')
-
-     if selection == "1":
-          analyzing_data_TABLE_2()
-
-     elif selection == "2":
-          analyzing_particular_data_TABLE_2()
-
-     else:
-          pass
-
 def analyzing_particular_data_TABLE_2():
      global statue_index
-     global tset_index
+     global test_index
 
      statue_index = int(input("지역 번호 : "))
      test_index = int(input("시험장 번호: "))
 
-     print(statue_saving_route[statue_index])
-     print(test_saving_route[test_index])
+     print("====================================================")
 
      read_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + "result_table" + ".csv"
      read_dataframe = pandas.read_csv(read_url, sep=",", dtype="unicode", encoding="cp949")
 
+     print("====================================================")
      print(read_dataframe)
+     print("====================================================")
 
      read_url = "./" + statue_saving_route[statue_index] + "/" + test_saving_route[test_index] + "/" + "result_table" + ".csv"
      read_dataframe = pandas.read_csv(read_url, sep=",", dtype="unicode", encoding="cp949")
@@ -534,13 +472,8 @@ def analyzing_particular_data_TABLE_2():
           test_code = part_of_data[5:9]
           place_name = part_of_data[10:]
 
-          # temp_data_list.insert(test_code, place_name)
           temp_data_list[test_code] = place_name
 
-          # print(statue_code,"//", test_code, "::", place_name)
-
-
-     # print(test_place_name_database)
 
      for row_select in selected_test_data_table:
           col_count = 0
@@ -563,7 +496,7 @@ def analyzing_particular_data_TABLE_2():
 
      print("시험장: ",test_place_name_database[statue_saving_route[statue_index]][test_saving_route[test_index]])
 
-     print("==================================================================\n\n")
+     print("==================================================================\n")
 
      if len(data_list) == 0:
           print("응시 가능한 시험일정이 없습니다.")
@@ -608,8 +541,74 @@ def analyzing_data_TABLE_2():
           if statue_index >= statue_count :
                break
 
-def option_4(): # transfer_DATA 포함
-     selection = input('mode: ')
+def transfer_DATA_to_KAKAOTALK():
+     pass
+
+def transfer_DATA_to_TWITER():
+     pass
+
+""" 프로그램의 Framework """
+def initial_menu():
+     selection = input("Enter the option, Whether you wanna process for whole of data or particular data: ")
+
+     if selection == "1":
+          # Whole
+          arrangement_ENVIRONMENT()
+
+          global statue_index
+          while True:
+               checking_TESTPLACE()
+               statue_index = statue_index + 1
+               
+               if statue_index >= statue_count :
+                    break
+     elif selection == "2":
+          # Particular
+          arrangement_ENVIRONMENT()
+
+          checking_particular_TESTPLACE()
+
+     else :
+          # Pass this process
+          pass
+
+def second_menu():
+     selection = input("Enter the option, Whether you wanna process for whole of data or particular data: ")
+
+     global statue_index
+     global test_index
+
+     statue_index = 0
+     test_index = 0
+
+     if selection == "1" :
+          test_place_name_database_READ() # read informations of testplace name
+          analyzing_data_TABLE()
+          save_contents_by_CSV()
+
+     elif selection == "2" :
+          test_place_name_database_READ() # read informations of testplace name
+          analyzing_data_TABLE()
+          save_contents_by_particular_CSV()
+
+     else :
+          pass # pass
+
+def third_menu():
+     selection = input("Enter the option, Whether you wanna process for whole of data or particular data: ")
+
+     if selection == "1":
+          print("This is not programmed, yet")
+          #analyzing_data_TABLE_2()
+
+     elif selection == "2":
+          analyzing_particular_data_TABLE_2()
+
+     else:
+          pass
+
+def fourth_menu():
+     selection = input("Enter the name of Messanger, that you want to use for Alarming optimize test time: ")
 
      if selection == "kakao" or 'k':
           transfer_DATA_to_KAKAOTALK()
@@ -619,45 +618,24 @@ def option_4(): # transfer_DATA 포함
 
      else:
           pass    
-
-""" 3. 분석한 데이터를 통한 알림 기능 보내기 """
-def transfer_DATA_to_KAKAOTALK():
-     pass
-
-def transfer_DATA_to_TWITER():
-     pass
-
+     
 def main():
      global statue_index
      global test_index
 
-     """ 1. 환경 설정 """
-     arrangement_ENVIRONMENT()
-
-     """ 2, 3, 4. 데이터 추출 """
-     option_1() # check_TESTPLACE 포함
-
-     """ 5. 데이터 가공 """
-     statue_index = 0
-     test_index = 0
-
-     test_place_name_database_READ()
-
-     analyzing_data_TABLE()
-
-     option_2() # save_to_CSV 포함
-
-     option_3() # analyzing_data_TABLE_2() 포함
-
+     """ 1. 정보 테이블 크롤링 해서 각 디렉토리에 html 파일로 저장 """
+     initial_menu() # 크롤링 과정 포함 (환경 설정 -> option_1 -> checkTestPlace (save_table_parse)) 
      
-     """ 
-          6. 수집된 데이터를 이용해서, 필요로 하는 기능에 따라 사용자에게 알림보내기 
-     
-               #1. 구글 Crhome Alert
-               #2. KAKAO TALK BOT
-               #3. TWITTER BOT
-     """
 
-     option_4() # transfer_DATA 포함
+     """ 2. 파싱한 html 파일을 읽어서, 보기 좋게 csv(excel) 파일로 저장 """
+     second_menu()
+
+
+     """ 3. 저장한 csv 파일을 읽어서, 최적의 시험시간을 계산 """
+     third_menu()
+
+
+     """ 4. 최적의 시험시간을 계산해서, 메신저로 알림보내기 """
+     fourth_menu() # transfer_DATA 포함
 
 main()
